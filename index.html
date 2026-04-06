@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Laboratorio - Ley de Ohm y Transistores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+        }
+
+        .slider-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            padding: 60px 80px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .nav-button {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .prev {
+            left: 20px;
+        }
+
+        .next {
+            right: 20px;
+        }
+
+        .nav-button::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .prev::before {
+            border-width: 10px 15px 10px 0;
+            border-color: transparent #333 transparent transparent;
+        }
+
+        .next::before {
+            border-width: 10px 0 10px 15px;
+            border-color: transparent transparent transparent #333;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 20px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 300;
+        }
+
+        h2 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+            font-weight: 400;
+        }
+
+        h3 {
+            color: #7f8c8d;
+            font-size: 1.3em;
+            margin: 20px 0 15px 0;
+            font-weight: 400;
+        }
+
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .objective-box {
+            background: #ecf0f1;
+            padding: 30px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .materials-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .materials-list li {
+            padding: 12px 20px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #95a5a6;
+            transition: transform 0.2s;
+        }
+
+        .materials-list li:hover {
+            transform: translateX(5px);
+            background: #e8e9ea;
+        }
+
+        .instructions {
+            background: #fff;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .instructions ol {
+            padding-left: 25px;
+        }
+
+        .instructions li {
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .circuit-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .verify-instruction {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+
+        .verify-instruction::before {
+            content: "✓ ";
+            font-weight: bold;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            margin: 25px auto;
+            display: block;
+            background: #f0f0f0;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .formula {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            font-weight: 400;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .note {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <!-- Slide 1: Portada -->
+        <div class="slide active">
+            <div class="content">
+                <h1>Guía de Laboratorio</h1>
+                <h2 style="text-align: center; border: none; color: #7f8c8d;">Ley de Ohm en Circuitos Resistivos y Transistores NPN</h2>
+                <div style="text-align: center; margin-top: 60px; color: #95a5a6;">
+                    <p style="font-size: 1.2em; margin: 20px 0;">Circuitos en Serie, Paralelo y Mixto</p>
+                    <p style="font-size: 1.2em; margin: 20px 0;">Transistores NPN en Conmutación</p>
+                    <div style="margin-top: 80px; padding-top: 40px; border-top: 1px solid #ecf0f1;">
+                        <p>Fuente de Alimentación: 12V DC</p>
+                        <p>Señal de Control: 5V (Vbb)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Objetivos -->
+        <div class="slide">
+            <div class="content">
+                <h2>Objetivos</h2>
+                
+                <div class="objective-box">
+                    <h3>Objetivo General</h3>
+                    <p>Verificar experimentalmente la Ley de Ohm y las leyes de Kirchhoff en circuitos resistivos en serie, paralelo y mixto, alimentados con fuente de voltaje continuo de 12V, así como comprender el funcionamiento de transistores NPN en configuración de conmutación.</p>
+                </div>
+
+                <div class="objective-box">
+                    <h3>Objetivos Específicos</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 15px 0; padding-left: 25px; position: relative;">
+                            <span style="position: absolute; left: 0; color: #3498db;">▸</span>
+                            Medir voltaje, corriente y resistencia en circuitos serie, paralelo y mixto
+                        </li>
+                        <li style="margin: 15px 0; padding-left: 25px; position: relative;">
+                            <span style="position: absolute; left: 0; color: #3498db;">▸</span>
+                            Calcular y verificar experimentalmente la resistencia equivalente en diferentes configuraciones
+                        </li>
+                        <li style="margin: 15px 0; padding-left: 25px; position: relative;">
+                            <span style="position: absolute; left: 0; color: #3498db;">▸</span>
+                            Implementar circuitos con transistores NPN en modo conmutación
+                        </li>
+                        <li style="margin: 15px 0; padding-left: 25px; position: relative;">
+                            <span style="position: absolute; left: 0; color: #3498db;">▸</span>
+                            Analizar el comportamiento del transistor con Vbb = 5V y Vcc = 12V
+                        </li>
+                        <li style="margin: 15px 0; padding-left: 25px; position: relative;">
+                            <span style="position: absolute; left: 0; color: #3498db;">▸</span>
+                            Comparar los valores teóricos con los valores medidos experimentalmente
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Materiales -->
+        <div class="slide">
+            <div class="content">
+                <h2>Lista de Materiales</h2>
+                
+                <h3>Equipos de Medición</h3>
+                <ul class="materials-list">
+                    <li>1 Multímetro digital</li>
+                    <li>1 Fuente de alimentación DC regulable (0-15V)</li>
+                    <li>1 Protoboard o breadboard</li>
+                </ul>
+
+                <h3>Componentes Resistivos</h3>
+                <ul class="materials-list">
+                    <li>Resistencias de 220Ω (1/4W) - 4 unidades</li>
+                    <li>Resistencias de 470Ω (1/4W) - 4 unidades</li>
+                    <li>Resistencias de 1kΩ (1/4W) - 4 unidades</li>
+                    <li>Resistencias de 2.2kΩ (1/4W) - 2 unidades</li>
+                    <li>Resistencias de 4.7kΩ (1/4W) - 2 unidades</li>
+                    <li>Resistencias de 10kΩ (1/4W) - 2 unidades</li>
+                </ul>
+
+                <h3>Componentes Activos</h3>
+                <ul class="materials-list">
+                    <li>Transistores NPN 2N2222 o BC547 - 2 unidades</li>
+                    <li>LEDs rojos - 2 unidades</li>
+                    <li>Diodo 1N4007 - 2 unidades</li>
+                </ul>
+
+                <h3>Cableado y Conexiones</h3>
+                <ul class="materials-list">
+                    <li>Cable AWG 22 para protoboard (varios colores)</li>
+                    <li>Cables de conexión banana-caimán</li>
+                    <li>Interruptor DIP o push-button - 2 unidades</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Instrucciones Generales -->
+        <div class="slide">
+            <div class="content">
+                <h2>Instrucciones Generales</h2>
+                
+                <div class="warning">
+                    <strong>⚠ Precauciones de Seguridad:</strong>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Verificar que la fuente esté apagada antes de realizar conexiones</li>
+                        <li>Revisar la polaridad de los componentes antes de energizar</li>
+                        <li>No exceder la potencia nominal de las resistencias</li>
+                        <li>Manipular con cuidado los transistores (sensibles a estática)</li>
+                    </ul>
+                </div>
+
+                <div class="instructions">
+                    <h3>Procedimiento General</h3>
+                    <ol>
+                        <li><strong>Preparación:</strong> Organizar todos los materiales y verificar el funcionamiento del multímetro</li>
+                        <li><strong>Montaje:</strong> Realizar las conexiones en la protoboard siguiendo los diagramas de circuito</li>
+                        <li><strong>Verificación:</strong> Revisar visualmente todas las conexiones antes de energizar</li>
+                        <li><strong>Medición:</strong> 
+                            <ul style="margin-top: 10px; padding-left: 20px;">
+                                <li>Medir voltajes en paralelo con el circuito</li>
+                                <li>Medir corrientes en serie con el circuito</li>
+                                <li>Medir resistencias con el circuito desenergizado</li>
+                            </ul>
+                        </li>
+                        <li><strong>Registro:</strong> Anotar todos los valores medidos en las tablas correspondientes</li>
+                        <li><strong>Cálculos:</strong> Determinar valores teóricos y comparar con los medidos</li>
+                        <li><strong>Análisis:</strong> Calcular porcentajes de error y analizar las posibles causas</li>
+                    </ol>
+                </div>
+
+                <div class="note">
+                    <strong>📝 Nota:</strong> Para los circuitos con transistores, verificar que Vbb = 5V en la base y Vcc = 12V en el colector.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Circuito Serie -->
+        <div class="slide">
+            <div class="content">
+                <h2>Circuito Resistivo en Serie</h2>
+                
+                <div class="formula">
+                    V = I × R &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Rt = R1 + R2 + R3 + ... + Rn
+                </div>
+
+                <div class="verify-instruction">
+                    Comprueba los valores teóricos con cálculos y compruébalos midiendo los voltajes y corrientes
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Configuración</h3>
+                    <p>Conectar tres resistencias en serie alimentadas con 12V DC:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px;">
+                        <li>R1 = 220Ω</li>
+                        <li>R2 = 470Ω</li>
+                        <li>R3 = 1kΩ</li>
+                    </ul>
+                </div>
+
+                <div class="image-container">
+                    <img src="1.PNG" alt="Circuito Serie" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="image-placeholder" style="display: none;">
+                        Imagen 1.PNG - Circuito en Serie
+                    </div>
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"><strong>Figura 1:</strong> Circuito resistivo en serie con fuente de 12V</p>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Mediciones a Realizar</h3>
+                    <table>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Valor Teórico</th>
+                            <th>Valor Medido</th>
+                            <th>% Error</th>
+                        </tr>
+                        <tr>
+                            <td>Resistencia Total (Rt)</td>
+                            <td>1690Ω</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente Total (It)</td>
+                            <td>7.1 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R1</td>
+                            <td>1.56V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R2</td>
+                            <td>3.34V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R3</td>
+                            <td>7.1V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Circuito Paralelo -->
+        <div class="slide">
+            <div class="content">
+                <h2>Circuito Resistivo en Paralelo</h2>
+                
+                <div class="formula">
+                    1/Rt = 1/R1 + 1/R2 + 1/R3 + ... + 1/Rn
+                </div>
+
+                <div class="verify-instruction">
+                    Comprueba los valores teóricos con cálculos y compruébalos midiendo los voltajes y corrientes
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Configuración</h3>
+                    <p>Conectar tres resistencias en paralelo alimentadas con 12V DC:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px;">
+                        <li>R1 = 470Ω</li>
+                        <li>R2 = 1kΩ</li>
+                        <li>R3 = 2.2kΩ</li>
+                    </ul>
+                </div>
+
+                <div class="image-container">
+                    <img src="2.PNG" alt="Circuito Paralelo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="image-placeholder" style="display: none;">
+                        Imagen 2.PNG - Circuito en Paralelo
+                    </div>
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"><strong>Figura 2:</strong> Circuito resistivo en paralelo con fuente de 12V</p>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Mediciones a Realizar</h3>
+                    <table>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Valor Teórico</th>
+                            <th>Valor Medido</th>
+                            <th>% Error</th>
+                        </tr>
+                        <tr>
+                            <td>Resistencia Total (Rt)</td>
+                            <td>277Ω</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente Total (It)</td>
+                            <td>43.3 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente en R1</td>
+                            <td>25.5 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente en R2</td>
+                            <td>12 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente en R3</td>
+                            <td>5.45 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="note">
+                    <strong>Importante:</strong> En paralelo, el voltaje es el mismo en todas las resistencias (12V).
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Circuito Mixto -->
+        <div class="slide">
+            <div class="content">
+                <h2>Circuito Resistivo Mixto</h2>
+                
+                <div class="verify-instruction">
+                    Comprueba los valores teóricos con cálculos y compruébalos midiendo los voltajes y corrientes
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Configuración</h3>
+                    <p>Combinación de resistencias en serie y paralelo con fuente de 12V DC:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px;">
+                        <li>R1 = 220Ω (serie)</li>
+                        <li>R2 = 470Ω (paralelo con R3)</li>
+                        <li>R3 = 1kΩ (paralelo con R2)</li>
+                        <li>R4 = 470Ω (serie)</li>
+                    </ul>
+                </div>
+
+                <div class="image-container">
+                    <img src="3.PNG" alt="Circuito Mixto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="image-placeholder" style="display: none;">
+                        Imagen 3.PNG - Circuito Mixto
+                    </div>
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"><strong>Figura 3:</strong> Circuito resistivo mixto con fuente de 12V</p>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Procedimiento de Cálculo</h3>
+                    <ol style="padding-left: 25px; line-height: 2;">
+                        <li>Calcular resistencia equivalente del paralelo R2 || R3</li>
+                        <li>Sumar resistencias en serie: Rt = R1 + (R2||R3) + R4</li>
+                        <li>Calcular corriente total: It = V/Rt</li>
+                        <li>Determinar caídas de voltaje en cada sección</li>
+                        <li>Calcular corrientes en ramas paralelas</li>
+                    </ol>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Mediciones a Realizar</h3>
+                    <table>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Valor Teórico</th>
+                            <th>Valor Medido</th>
+                            <th>% Error</th>
+                        </tr>
+                        <tr>
+                            <td>Resistencia Total (Rt)</td>
+                            <td>~1005Ω</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Corriente Total (It)</td>
+                            <td>~11.9 mA</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R1</td>
+                            <td>2.62V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R2 y R3</td>
+                            <td>3.75V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Voltaje en R4</td>
+                            <td>5.59V</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Transistor NPN - Circuito 1 -->
+        <div class="slide">
+            <div class="content">
+                <h2>Transistor NPN en Conmutación - Circuito 1</h2>
+                
+                <div class="verify-instruction">
+                    Comprueba los valores teóricos con cálculos y compruébalos midiendo los voltajes y corrientes
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Configuración Básica</h3>
+                    <p>Transistor NPN como interruptor controlado por la base:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px;">
+                        <li><strong>Vcc (Colector):</strong> 12V</li>
+                        <li><strong>Vbb (Base):</strong> 5V (señal de control)</li>
+                        <li><strong>Rb (Base):</strong> 4.7kΩ</li>
+                        <li><strong>Rc (Colector):</strong> 470Ω</li>
+                        <li><strong>Carga:</strong> LED con resistencia limitadora</li>
+                    </ul>
+                </div>
+
+                <div class="formula">
+                    Ib = (Vbb - Vbe) / Rb &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; Ic = β × Ib
+                </div>
+
+                <div class="image-container">
+                    <img src="4.PNG" alt="Transistor Circuito 1" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="image-placeholder" style="display: none;">
+                        Imagen 4.PNG - Transistor NPN Circuito 1
+                    </div>
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"><strong>Figura 4:</strong> Circuito de conmutación con transistor NPN (Configuración 1)</p>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Mediciones a Realizar</h3>
+                    <table>
+                        <tr>
+                            <th>Parámetro</th>
+                            <th>Condición</th>
+                            <th>Valor Medido</th>
+                        </tr>
+                        <tr>
+                            <td>Vbe (Base-Emisor)</td>
+                            <td>Transistor ON</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Vce (Colector-Emisor)</td>
+                            <td>Transistor ON</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Vce (Colector-Emisor)</td>
+                            <td>Transistor OFF</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Ib (Corriente de Base)</td>
+                            <td>Transistor ON</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Ic (Corriente de Colector)</td>
+                            <td>Transistor ON</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>β (Ganancia)</td>
+                            <td>Ic/Ib</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Transistor NPN - Circuito 2 -->
+        <div class="slide">
+            <div class="content">
+                <h2>Transistor NPN en Conmutación - Circuito 2</h2>
+                
+                <div class="verify-instruction">
+                    Comprueba los valores teóricos con cálculos y compruébalos midiendo los voltajes y corrientes
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Configuración con Diodo de Protección</h3>
+                    <p>Transistor NPN con carga inductiva o diodo de protección:</p>
+                    <ul style="margin: 15px 0; padding-left: 25px;">
+                        <li><strong>Vcc (Colector):</strong> 12V</li>
+                        <li><strong>Vbb (Base):</strong> 5V (señal de control)</li>
+                        <li><strong>Rb (Base):</strong> 10kΩ</li>
+                        <li><strong>Rc (Colector):</strong> 220Ω</li>
+                        <li><strong>Diodo:</strong> 1N4007 en paralelo con la carga</li>
+                        <li><strong>LED:</strong> Indicador de estado</li>
+                    </ul>
+                </div>
+
+                <div class="image-container">
+                    <img src="5.PNG" alt="Transistor Circuito 2" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <div class="image-placeholder" style="display: none;">
+                        Imagen 5.PNG - Transistor NPN Circuito 2
+                    </div>
+                    <p style="margin-top: 10px; color: #7f8c8d; font-size: 0.9em;"><strong>Figura 5:</strong> Circuito de conmutación con transistor NPN (Configuración 2)</p>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Modo de Operación</h3>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="color: #2c3e50; margin-bottom: 15px;">Estado OFF (Vbb = 0V):</h4>
+                        <ul style="padding-left: 25px; line-height: 1.8;">
+                            <li>Transistor en corte</li>
+                            <li>Ib ≈ 0A</li>
+                            <li>Ic ≈ 0A</li>
+                            <li>Vce ≈ Vcc (12V)</li>
+                            <li>LED apagado</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="color: #2c3e50; margin-bottom: 15px;">Estado ON (Vbb = 5V):</h4>
+                        <ul style="padding-left: 25px; line-height: 1.8;">
+                            <li>Transistor en saturación</li>
+                            <li>Ib = (5V - 0.7V) / 10kΩ ≈ 0.43mA</li>
+                            <li>Ic máxima limitada por Rc</li>
+                            <li>Vce ≈ 0.2V (saturación)</li>
+                            <li>LED encendido</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="warning">
+                    <strong>⚠ Importante:</strong> El diodo 1N4007 protege al transistor contra picos de voltaje inverso cuando se desconecta la carga.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Análisis de Resultados -->
+        <div class="slide">
+            <div class="content">
+                <h2>Análisis de Resultados y Conclusiones</h2>
+                
+                <div class="circuit-section">
+                    <h3>Cálculo de Porcentaje de Error</h3>
+                    <div class="formula">
+                        % Error = |(Valor Teórico - Valor Medido) / Valor Teórico| × 100
+                    </div>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Preguntas de Análisis</h3>
+                    <ol style="padding-left: 25px; line-height: 2;">
+                        <li>¿Cómo varía la corriente total al cambiar de configuración serie a paralelo?</li>
+                        <li>¿Por qué el voltaje es el mismo en todas las resistencias en paralelo?</li>
+                        <li>¿Qué sucede con la resistencia equivalente en cada configuración?</li>
+                        <li>¿Cuál es la función de la resistencia de base (Rb) en el transistor?</li>
+                        <li>¿Por qué Vce es tan bajo cuando el transistor está en saturación?</li>
+                        <li>¿Qué ventajas tiene usar un transistor como interruptor?</li>
+                        <li>¿Cómo afecta la ganancia β del transistor al funcionamiento del circuito?</li>
+                    </ol>
+                </div>
+
+                <div class="circuit-section">
+                    <h3>Conclusiones Esperadas</h3>
+                    <ul style="padding-left: 25px; line-height: 2;">
+                        <li>Verificación experimental de la Ley de Ohm</li>
+                        <li>Comprensión de las diferencias entre circuitos serie, paralelo y mixto</li>
+                        <li>Entendimiento del transistor como elemento de conmutación</li>
+                        <li>Relación entre corriente de base y corriente de colector</li>
+                        <li>Importancia de las resistencias limitadoras de corriente</li>
+                    </ul>
+                </div>
+
+                <div class="note">
+                    <strong>📋 Reporte:</strong> Incluir tablas completas, cálculos detallados, gráficas si aplica, y análisis de las posibles fuentes de error.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de Navegación -->
+    <button class="nav-button prev" onclick="changeSlide(-1)"></button>
+    <button class="nav-button next" onclick="changeSlide(1)"></button>
+
+    <!-- Contador de Diapositivas -->
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+            document.getElementById('currentSlide').textContent = index + 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex >= totalSlides) {
+                currentSlideIndex = totalSlides - 1;
+            }
+            
+            showSlide(currentSlideIndex);
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                changeSlide(1);
+            }
+        });
+
+        // Touch support para móviles
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1);
+            }
+        }
+
+        // Inicializar
+        showSlide(0);
+    </script>
+</body>
+</html>
